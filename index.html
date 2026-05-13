@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>啥博弈</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: #e0e0e0;
+        }
+        .container { max-width: 860px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 {
+            font-size: 28px;
+            color: #f0c040;
+            text-shadow: 0 2px 8px rgba(240, 192, 64, 0.3);
+            margin-bottom: 8px;
+        }
+        .header .rule-note {
+            font-size: 13px;
+            color: #aab;
+            background: rgba(255,255,255,0.05);
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+        .section {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 22px 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ccc;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title .badge {
+            background: #f0c040;
+            color: #1a1a2e;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        .type-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .type-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.06);
+            color: #ccc;
+            user-select: none;
+            min-width: 100px;
+            justify-content: center;
+        }
+        .type-btn:hover {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        .type-btn:active { transform: scale(0.95); }
+        .type-btn.selected-1 {
+            background: #4a90d9;
+            border-color: #6db3f2;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(74, 144, 217, 0.5);
+        }
+        .type-btn.selected-2 {
+            background: #e67e22;
+            border-color: #f0a04b;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(230, 126, 34, 0.5);
+        }
+        .type-btn img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        .query-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f0c040, #e0a020);
+            color: #1a1a2e;
+            transition: all 0.2s ease;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+        .query-btn:hover {
+            background: linear-gradient(135deg, #f5d060, #e8b030);
+            box-shadow: 0 6px 20px rgba(240, 192, 64, 0.4);
+            transform: translateY(-1px);
+        }
+        .query-btn:active { transform: scale(0.98); }
+        .result-box {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 22px 24px;
+            backdrop-filter: blur(4px);
+            line-height: 1.7;
+        }
+        .result-box h3 { color: #f0c040; margin-bottom: 10px; font-size: 20px; }
+        .result-box h4 { color: #ccc; margin-top: 16px; margin-bottom: 8px; font-size: 15px; }
+        .result-box ul { list-style: none; padding-left: 0; }
+        .result-box li {
+            padding: 6px 12px;
+            margin: 4px 0;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .highlight { font-weight: bold; color: #f0c040; }
+        .multiplier-tag {
+            display: inline-block;
+            background: #27ae60;
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: 6px;
+            font-weight: bold;
+        }
+        .multiplier-tag.x2 {
+            background: rgba(220, 220, 230, 0.85);
+            color: #2a2a3a;
+            box-shadow: 0 0 8px rgba(220, 220, 230, 0.3);
+        }
+        .multiplier-tag.x3 {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+        .multiplier-tag.x0 {
+            background: rgba(100, 120, 160, 0.7);
+            color: #fff;
+        }
+        .multiplier-tag.x025 {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+        .counter-item.x2-row {
+            background: rgba(220, 220, 240, 0.07);
+            border: 1px solid rgba(220, 220, 240, 0.12);
+        }
+        .counter-item.x3-row {
+            background: rgba(231, 76, 60, 0.12);
+            border: 1px solid rgba(231, 76, 60, 0.25);
+        }
+        .counter-item.x0-row {
+            background: rgba(100, 120, 160, 0.12);
+            border: 1px solid rgba(100, 120, 160, 0.25);
+        }
+        .counter-item.x025-row {
+            background: rgba(231, 76, 60, 0.18);
+            border: 1px solid rgba(231, 76, 60, 0.35);
+        }
+        .mode-toggle {
+            display: flex;
+            gap: 0;
+            margin-bottom: 14px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .mode-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 16px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #999;
+            user-select: none;
+        }
+        .mode-btn:hover { background: rgba(255,255,255,0.06); }
+        .mode-btn.active {
+            background: #f0c040;
+            color: #1a1a2e;
+        }
+        .counter-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .counter-item {
+            padding: 6px 12px;
+            margin: 4px 0;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .counter-item.high-count {
+            background: rgba(240, 192, 64, 0.12);
+            border: 1px solid rgba(240, 192, 64, 0.25);
+        }
+        .scroll-box {
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 6px 12px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.02);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.15) transparent;
+        }
+        .scroll-box::-webkit-scrollbar { width: 4px; }
+        .scroll-box::-webkit-scrollbar-track { background: transparent; }
+        .scroll-box::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+        }
+        .scroll-box::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+        .scroll-box ul { margin: 0; }
+        .note { color: #999; font-size: 13px; margin-top: 10px; }
+        .best-badge {
+            display: inline-block;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 13px;
+            padding: 3px 12px;
+            border-radius: 10px;
+            margin-left: 6px;
+            animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .selected-indicator {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 10px;
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .selected-indicator span {
+            font-weight: bold;
+            padding: 2px 10px;
+            border-radius: 8px;
+            margin: 0 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .selected-indicator .s1 { background: #4a90d9; color: #fff; }
+        .selected-indicator .s2 { background: #e67e22; color: #fff; }
+        .selected-indicator img { width: 20px; height: 20px; }
+        .result-icon { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>啥博弈</h1>
+            <p class="rule-note">
+                规则：最终倍率 = (1 + 克制数) × (0.5<sup>抵抗数</sup>)
+            </p>
+        </div>
+
+        <div class="section">
+            <div class="mode-toggle" id="mode-toggle">
+                <span class="mode-btn active" data-mode="defense" onclick="switchMode('defense')">🛡️ 防守分析</span>
+                <span class="mode-btn" data-mode="attack" onclick="switchMode('attack')">⚔️ 攻击分析</span>
+            </div>
+            <div class="section-title" id="section-title">
+                选择防守属性
+            </div>
+            <div class="selected-indicator" id="selected-indicator">
+                未选择任何属性
+            </div>
+            <div class="type-grid" id="type-grid"></div>
+        </div>
+
+        <button class="query-btn" id="query-btn" onclick="analyze()">🔍 查询最佳反制</button>
+
+        <div class="result-box" id="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const iconUrls = {
+            "普通": "icons/普通.png",
+            "草": "icons/草.png",
+            "火": "icons/火.png",
+            "水": "icons/水.png",
+            "光": "icons/光.png",
+            "地": "icons/地.png",
+            "冰": "icons/冰.png",
+            "龙": "icons/龙.png",
+            "电": "icons/电.png",
+            "毒": "icons/毒.png",
+            "虫": "icons/虫.png",
+            "武": "icons/武.png",
+            "翼": "icons/翼.png",
+            "萌": "icons/萌.png",
+            "幽": "icons/幽.png",
+            "恶": "icons/恶.png",
+            "机械": "icons/机械.png",
+            "幻": "icons/幻.png"
+        };
+
+        const data = {
+            "普通": { "普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":1,"翼":0,"萌":0,"幽":-1,"恶":0,"机械":0,"幻":0 },
+            "草":   { "普通":0,"草":0,"火":1,"水":-1,"光":-1,"地":-1,"冰":1,"龙":0,"电":-1,"毒":1,"虫":1,"武":0,"翼":1,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0 },
+            "火":   { "普通":0,"草":-1,"火":0,"水":1,"光":0,"地":1,"冰":-1,"龙":0,"电":0,"毒":0,"虫":-1,"武":0,"翼":0,"萌":-1,"幽":0,"恶":0,"机械":-1,"幻":0 },
+            "水":   { "普通":0,"草":1,"火":-1,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":1,"毒":0,"虫":0,"武":0,"翼":0,"萌":0,"幽":0,"恶":0,"机械":-1,"幻":0 },
+            "光":   { "普通":0,"草":1,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":0,"翼":0,"萌":0,"幽":1,"恶":-1,"机械":0,"幻":-1 },
+            "地":   { "普通":-1,"草":1,"火":-1,"水":1,"光":0,"地":0,"冰":1,"龙":0,"电":-1,"毒":-1,"虫":0,"武":1,"翼":-1,"萌":0,"幽":0,"恶":0,"机械":1,"幻":0 },
+            "冰":   { "普通":0,"草":0,"火":1,"水":-1,"光":-1,"地":1,"冰":-1,"龙":0,"电":0,"毒":0,"虫":0,"武":1,"翼":0,"萌":0,"幽":0,"恶":0,"机械":1,"幻":0 },
+            "龙":   { "普通":0,"草":-1,"火":-1,"水":-1,"光":0,"地":0,"冰":1,"龙":1,"电":-1,"毒":0,"虫":0,"武":0,"翼":-1,"萌":1,"幽":0,"恶":0,"机械":0,"幻":0 },
+            "电":   { "普通":0,"草":0,"火":0,"水":0,"光":0,"地":1,"冰":0,"龙":0,"电":-1,"毒":0,"虫":0,"武":0,"翼":-1,"萌":0,"幽":0,"恶":0,"机械":-1,"幻":0 },
+            "毒":   { "普通":0,"草":-1,"火":0,"水":0,"光":0,"地":1,"冰":0,"龙":0,"电":0,"毒":-1,"虫":-1,"武":-1,"翼":0,"萌":-1,"幽":0,"恶":1,"机械":0,"幻":1 },
+            "虫":   { "普通":0,"草":-1,"火":1,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":-1,"翼":1,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0 },
+            "武":   { "普通":0,"草":0,"火":0,"水":0,"光":0,"地":-1,"冰":0,"龙":0,"电":0,"毒":0,"虫":-1,"武":0,"翼":1,"萌":1,"幽":0,"恶":-1,"机械":0,"幻":1 },
+            "翼":   { "普通":0,"草":-1,"火":0,"水":0,"光":0,"地":0,"冰":1,"龙":0,"电":1,"毒":0,"虫":-1,"武":-1,"翼":0,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0 },
+            "萌":   { "普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":1,"虫":-1,"武":-1,"翼":0,"萌":0,"幽":0,"恶":1,"机械":1,"幻":0 },
+            "幽":   { "普通":-1,"草":0,"火":0,"水":0,"光":1,"地":0,"冰":0,"龙":0,"电":0,"毒":-1,"虫":-1,"武":-1,"翼":0,"萌":0,"幽":1,"恶":1,"机械":0,"幻":0 },
+            "恶":   { "普通":0,"草":0,"火":0,"水":0,"光":1,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":1,"武":1,"翼":0,"萌":1,"幽":-1,"恶":-1,"机械":0,"幻":0 },
+            "机械": { "普通":-1,"草":-1,"火":1,"水":1,"光":0,"地":0,"冰":-1,"龙":-1,"电":0,"毒":-1,"虫":-1,"武":1,"翼":-1,"萌":-1,"幽":0,"恶":0,"机械":-1,"幻":-1 },
+            "幻":   { "普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":1,"武":-1,"翼":0,"萌":0,"幽":1,"恶":0,"机械":0,"幻":-1 }
+        };
+
+        const types = Object.keys(data);
+        let selectedType1 = null;
+        let selectedType2 = null;
+        let mode = 'defense';
+
+        const typeGrid = document.getElementById("type-grid");
+        types.forEach(type => {
+            const btn = document.createElement("div");
+            btn.className = "type-btn";
+
+            const img = document.createElement("img");
+            img.src = iconUrls[type];
+            img.alt = type;
+            
+
+            const span = document.createElement("span");
+            span.textContent = type;
+
+            btn.appendChild(img);
+            btn.appendChild(span);
+            btn.addEventListener("click", () => toggleType(type, btn));
+            typeGrid.appendChild(btn);
+        });
+
+        function toggleType(type, btn) {
+            if (mode === 'attack') {
+                if (type === selectedType1) {
+                    selectedType1 = null;
+                } else {
+                    selectedType1 = type;
+                }
+                selectedType2 = null;
+                updateSelectionUI();
+                return;
+            }
+            if (type === selectedType1) {
+                selectedType1 = selectedType2;
+                selectedType2 = null;
+                updateSelectionUI();
+                return;
+            }
+            if (type === selectedType2) {
+                selectedType2 = null;
+                updateSelectionUI();
+                return;
+            }
+            if (!selectedType1) {
+                selectedType1 = type;
+                updateSelectionUI();
+                return;
+            }
+            if (!selectedType2) {
+                selectedType2 = type;
+                updateSelectionUI();
+                return;
+            }
+            selectedType1 = selectedType2;
+            selectedType2 = type;
+            updateSelectionUI();
+        }
+
+        function switchMode(newMode) {
+            if (newMode === 'attack' && selectedType1 && selectedType2) {
+                selectedType1 = selectedType2;
+                selectedType2 = null;
+            }
+            mode = newMode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === newMode));
+            document.getElementById('section-title').textContent = mode === 'defense' ? '选择防守属性' : '选择攻击属性';
+            document.getElementById('query-btn').textContent = mode === 'defense' ? '🔍 查询最佳反制' : '🔍 查询攻击效果';
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            const allBtns = document.querySelectorAll(".type-btn");
+            allBtns.forEach(btn => {
+                btn.classList.remove("selected-1", "selected-2");
+                const span = btn.querySelector("span");
+                const btnType = span ? span.textContent : "";
+                if (btnType === selectedType1) btn.classList.add("selected-1");
+                if (btnType === selectedType2) btn.classList.add("selected-2");
+            });
+
+            const indicator = document.getElementById("selected-indicator");
+            const label = mode === 'defense' ? '防守' : '攻击';
+            if (!selectedType1 && !selectedType2) {
+                indicator.innerHTML = "未选择任何属性";
+            } else if (selectedType1 && !selectedType2) {
+                indicator.innerHTML = `${label}属性：<span class="s1"><img src="${iconUrls[selectedType1]}" alt="">${selectedType1}</span>`;
+            } else {
+                indicator.innerHTML = `${label}属性：<span class="s1"><img src="${iconUrls[selectedType1]}" alt="">${selectedType1}</span> + <span class="s2"><img src="${iconUrls[selectedType2]}" alt="">${selectedType2}</span>`;
+            }
+        }
+
+        function getMultiplier(attacker, defenseTypes) {
+            let plusCount = 0, minusCount = 0;
+            for (let defType of defenseTypes) {
+                const val = data[defType][attacker];
+                if (val === 1) plusCount++;
+                else if (val === -1) minusCount++;
+            }
+            return (1 + plusCount) * Math.pow(0.5, minusCount);
+        }
+
+        function getAttackMultiplier(attackers, defenseType) {
+            let plusCount = 0, minusCount = 0;
+            for (let attacker of attackers) {
+                const val = data[defenseType][attacker];
+                if (val === 1) plusCount++;
+                else if (val === -1) minusCount++;
+            }
+            return (1 + plusCount) * Math.pow(0.5, minusCount);
+        }
+
+        function analyze() {
+            if (!selectedType1) {
+                alert("请先选择至少一个属性！");
+                return;
+            }
+            const selectedTypes = [selectedType1];
+            if (selectedType2) selectedTypes.push(selectedType2);
+            const name = selectedTypes.join(" / ");
+
+            const resultDiv = document.getElementById("result");
+            resultDiv.style.display = "block";
+
+            if (mode === 'defense') {
+                const defenseTypes = selectedTypes;
+                const effectiveAttackers = [];
+                const resistedAttackers = [];
+                for (let attacker of types) {
+                    const mult = getMultiplier(attacker, defenseTypes);
+                    if (mult > 1) effectiveAttackers.push({ attacker, mult });
+                    if (mult < 1) resistedAttackers.push({ attacker, mult });
+                }
+
+                const counterDataMap = {};
+                for (let item of effectiveAttackers) {
+                    for (let attacker of types) {
+                        if (data[item.attacker][attacker] === 1) {
+                            if (!counterDataMap[attacker]) counterDataMap[attacker] = { count: 0, countered: [] };
+                            counterDataMap[attacker].count++;
+                            counterDataMap[attacker].countered.push(item.attacker);
+                        }
+                    }
+                }
+
+                const sorted = Object.entries(counterDataMap).map(([att, obj]) => ({
+                    att, count: obj.count, countered: obj.countered
+                }));
+                sorted.sort((a, b) => b.count - a.count);
+
+                let html = `<h3>🛡️ 防守方：${name}</h3>`;
+                html += `<p class="note">预判对手释放克制你的技能或换精灵，提前换上反制的精灵</p>`;
+
+                if (resistedAttackers.length > 0) {
+                    resistedAttackers.sort((a, b) => a.mult - b.mult);
+                    html += `<h4>🛡️ 防守优势（倍率<1）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    for (let item of resistedAttackers) {
+                        const isDouble = item.mult <= 0.25;
+                        html += `<li class="counter-item ${isDouble ? 'x025' : 'x0'}-row"><img class="result-icon" src="${iconUrls[item.attacker]}" alt=""> <strong>${item.attacker}</strong> <span class="multiplier-tag ${isDouble ? 'x025' : 'x0'}">×${item.mult.toFixed(2)}</span></li>`;
+                    }
+                    html += `</ul></div>`;
+                }
+
+                if (effectiveAttackers.length === 0) {
+                    html += `<p>没有攻击属性能造成克制伤害（倍率 &gt; 1）。</p>`;
+                } else {
+                    effectiveAttackers.sort((a, b) => b.mult - a.mult);
+                    html += `<h4>⚡ 被克制（倍率>1）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    for (let item of effectiveAttackers) {
+                        const xClass = item.mult >= 3 ? 'x3' : (item.mult >= 2 ? 'x2' : '');
+                        html += `<li class="counter-item ${xClass}-row"><img class="result-icon" src="${iconUrls[item.attacker]}" alt=""> <strong>${item.attacker}</strong> <span class="multiplier-tag ${xClass}">×${item.mult.toFixed(2)}</span></li>`;
+                    }
+                    html += `</ul></div>`;
+
+                    if (sorted.length > 0) {
+                        html += `<h4>🎯 克星对策</h4>`;
+                        html += `<p class="note">个数越多越克制</p>`;
+                        
+                        html += `<div class="scroll-box"><ul class="counter-list">`;
+                        for (let item of sorted) {
+                            const counteredIcons = item.countered.map(c => `<img class="result-icon" src="${iconUrls[c]}" alt="">`).join("");
+                            html += `<li class="counter-item"><img class="result-icon" src="${iconUrls[item.att]}" alt=""> <strong>${item.att}</strong>：${item.count} 个 → ${counteredIcons} ${item.countered.join("、")}</li>`;
+                        }
+                        html += `</ul></div>`;
+                        
+                        html += `<p>✅ 最佳反制：<img class="result-icon" src="${iconUrls[sorted[0].att]}" alt=""> <span class="highlight">${sorted[0].att}</span><span class="best-badge">${sorted[0].count} 个</span></p>`;
+                        if (sorted.length > 1 && sorted[0].count === sorted[1].count) {
+                            html += `<p class="note">（并列第一，可任选）</p>`;
+                        }
+                    } else {
+                        html += `<p>无可反制</p>`;
+                    }
+                }
+                resultDiv.innerHTML = html;
+            } else {
+                const attackers = selectedTypes;
+                const results = [];
+                for (let def of types) {
+                    const mult = getAttackMultiplier(attackers, def);
+                    results.push({ def, mult });
+                }
+
+                const effective = results.filter(r => r.mult >= 2).sort((a, b) => b.mult - a.mult);
+                const resisted = results.filter(r => r.mult <= 0.5).sort((a, b) => a.mult - b.mult);
+
+                let html = `<h3>⚔️ 攻击方：${name}</h3>`;
+                html += `<p class="note">预判对手换上抵抗你技能系别的精灵，提前选择反制的精灵或技能</p>`;
+
+                if (effective.length > 0) {
+                    html += `<h4>⚡ 克制（倍率≥2）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    for (let item of effective) {
+                        const xClass = item.mult >= 3 ? 'x3' : 'x2';
+                        html += `<li class="counter-item ${xClass}-row"><img class="result-icon" src="${iconUrls[item.def]}" alt=""> <strong>${item.def}</strong> <span class="multiplier-tag ${xClass}">×${item.mult.toFixed(2)}</span></li>`;
+                    }
+                    html += `</ul></div>`;
+                }
+
+                if (resisted.length > 0) {
+                    html += `<h4>🛡️ 被抵抗（倍率≤0.5）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    for (let item of resisted) {
+                        const isDouble = item.mult <= 0.25;
+                        html += `<li class="counter-item ${isDouble ? 'x025' : 'x0'}-row"><img class="result-icon" src="${iconUrls[item.def]}" alt=""> <strong>${item.def}</strong> <span class="multiplier-tag ${isDouble ? 'x025' : 'x0'}">×${item.mult.toFixed(2)}</span></li>`;
+                    }
+                    html += `</ul></div>`;
+                }
+
+                const halfResistedTypes = results.filter(r => r.mult === 0.5).map(r => r.def);
+                if (halfResistedTypes.length > 0) {
+                    const counterMap = {};
+                    for (let defType of halfResistedTypes) {
+                        for (let attacker of types) {
+                            const mult = getMultiplier(attacker, [defType]);
+                            if (mult > 1) {
+                                if (!counterMap[attacker]) counterMap[attacker] = { count: 0, countered: [] };
+                                counterMap[attacker].count++;
+                                counterMap[attacker].countered.push(defType);
+                            }
+                        }
+                    }
+                    const sortedCounters = Object.entries(counterMap).map(([att, obj]) => ({
+                        att, count: obj.count, countered: obj.countered
+                    }));
+                    sortedCounters.sort((a, b) => b.count - a.count);
+
+                    html += `<h4>🎯 克星对策</h4>`;
+                    html += `<p class="note">能克制 ${halfResistedTypes.join("、")} 的系别</p>`;
+                    html += `<div class="scroll-box"><ul class="counter-list">`;
+                    for (let item of sortedCounters) {
+                        const counteredIcons = item.countered.map(c => `<img class="result-icon" src="${iconUrls[c]}" alt="">`).join("");
+                        html += `<li class="counter-item"><img class="result-icon" src="${iconUrls[item.att]}" alt=""> <strong>${item.att}</strong>：${item.count} 个 → ${counteredIcons} ${item.countered.join("、")}</li>`;
+                    }
+                    html += `</ul></div>`;
+                    html += `<p>✅ 最佳反制被抵抗：<img class="result-icon" src="${iconUrls[sortedCounters[0].att]}" alt=""> <span class="highlight">${sortedCounters[0].att}</span><span class="best-badge">${sortedCounters[0].count} 个</span></p>`;
+                }
+
+
+
+                resultDiv.innerHTML = html;
+            }
+            resultDiv.scrollIntoView({ behavior: "smooth" });
+        }
+
+        selectedType1 = types[0];
+        updateSelectionUI();
+        analyze();
+    </script>
+</body>
+</html>
