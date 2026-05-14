@@ -566,7 +566,7 @@
                 const resisted = results.filter(r => r.mult < 1).sort((a, b) => a.mult - b.mult);
 
                 let html = `<h3>⚔️ 攻击方：${name}</h3>`;
-                html += `<p class="note">预判对手换上抵抗你技能系别的精灵，提前选择反制的精灵或技能</p>`;
+                html += `<p class="note">预判对手换上抵抗你攻击的精灵，提前换上反制的精灵或技能</p>`;
 
                 if (effective.length > 0) {
                     html += `<h4>⚔️ 攻击优势（倍率>1）</h4><div class="scroll-box"><ul class="counter-list">`;
@@ -605,14 +605,17 @@
                     sortedCounters.sort((a, b) => b.count - a.count);
 
                     html += `<h4>🎯 克星对策</h4>`;
-                    html += `<p class="note">能克制 ${halfResistedTypes.join("、")} 的系别</p>`;
+                    html += `<p class="note">个数越多越克制</p>`;
                     html += `<div class="scroll-box"><ul class="counter-list">`;
                     for (let item of sortedCounters) {
                         const counteredIcons = item.countered.map(c => `<img class="result-icon" src="${iconUrls[c]}" alt="">`).join("");
                         html += `<li class="counter-item"><img class="result-icon" src="${iconUrls[item.att]}" alt=""> <strong>${item.att}</strong>：${item.count} 个 → ${counteredIcons} ${item.countered.join("、")}</li>`;
                     }
                     html += `</ul></div>`;
-                    html += `<p>✅ 最佳反制被抵抗：<img class="result-icon" src="${iconUrls[sortedCounters[0].att]}" alt=""> <span class="highlight">${sortedCounters[0].att}</span><span class="best-badge">${sortedCounters[0].count} 个</span></p>`;
+                    html += `<p>✅ 最佳反制：<img class="result-icon" src="${iconUrls[sortedCounters[0].att]}" alt=""> <span class="highlight">${sortedCounters[0].att}</span><span class="best-badge">${sortedCounters[0].count} 个</span></p>`;
+                    if (sortedCounters.length > 1 && sortedCounters[0].count === sortedCounters[1].count) {
+                        html += `<p class="note">（并列第一，可任选）</p>`;
+                    }
                 }
 
 
