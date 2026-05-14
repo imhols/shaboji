@@ -427,7 +427,6 @@
             mode = newMode;
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === newMode));
             document.getElementById('section-title').textContent = mode === 'defense' ? '选择防守属性' : '选择攻击属性';
-            document.getElementById('query-btn').textContent = mode === 'defense' ? '🔍 查询最佳反制' : '🔍 查询攻击效果';
             updateSelectionUI();
         }
 
