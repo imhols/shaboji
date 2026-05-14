@@ -527,7 +527,7 @@
                     html += `<p>没有攻击属性能造成克制伤害（倍率 &gt; 1）。</p>`;
                 } else {
                     effectiveAttackers.sort((a, b) => b.mult - a.mult);
-                    html += `<h4>⚡ 被克制（倍率>1）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    html += `<h4>⚡ 防守劣势（倍率>1）</h4><div class="scroll-box"><ul class="counter-list">`;
                     for (let item of effectiveAttackers) {
                         const xClass = item.mult >= 3 ? 'x3' : (item.mult >= 2 ? 'x2' : '');
                         html += `<li class="counter-item ${xClass}-row"><img class="result-icon" src="${iconUrls[item.attacker]}" alt=""> <strong>${item.attacker}</strong> <span class="multiplier-tag ${xClass}">×${item.mult.toFixed(2)}</span></li>`;
@@ -562,23 +562,23 @@
                     results.push({ def, mult });
                 }
 
-                const effective = results.filter(r => r.mult >= 2).sort((a, b) => b.mult - a.mult);
-                const resisted = results.filter(r => r.mult <= 0.5).sort((a, b) => a.mult - b.mult);
+                const effective = results.filter(r => r.mult > 1).sort((a, b) => b.mult - a.mult);
+                const resisted = results.filter(r => r.mult < 1).sort((a, b) => a.mult - b.mult);
 
                 let html = `<h3>⚔️ 攻击方：${name}</h3>`;
                 html += `<p class="note">预判对手换上抵抗你技能系别的精灵，提前选择反制的精灵或技能</p>`;
 
                 if (effective.length > 0) {
-                    html += `<h4>⚡ 克制（倍率≥2）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    html += `<h4>⚔️ 攻击优势（倍率>1）</h4><div class="scroll-box"><ul class="counter-list">`;
                     for (let item of effective) {
-                        const xClass = item.mult >= 3 ? 'x3' : 'x2';
+                        const xClass = item.mult >= 3 ? 'x3' : (item.mult >= 2 ? 'x2' : '');
                         html += `<li class="counter-item ${xClass}-row"><img class="result-icon" src="${iconUrls[item.def]}" alt=""> <strong>${item.def}</strong> <span class="multiplier-tag ${xClass}">×${item.mult.toFixed(2)}</span></li>`;
                     }
                     html += `</ul></div>`;
                 }
 
                 if (resisted.length > 0) {
-                    html += `<h4>🛡️ 被抵抗（倍率≤0.5）</h4><div class="scroll-box"><ul class="counter-list">`;
+                    html += `<h4>🛡️ 攻击劣势（倍率<1）</h4><div class="scroll-box"><ul class="counter-list">`;
                     for (let item of resisted) {
                         const isDouble = item.mult <= 0.25;
                         html += `<li class="counter-item ${isDouble ? 'x025' : 'x0'}-row"><img class="result-icon" src="${iconUrls[item.def]}" alt=""> <strong>${item.def}</strong> <span class="multiplier-tag ${isDouble ? 'x025' : 'x0'}">×${item.mult.toFixed(2)}</span></li>`;
