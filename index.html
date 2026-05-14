@@ -510,7 +510,7 @@
                 sorted.sort((a, b) => b.count - a.count);
 
                 let html = `<h3>🛡️ 防守方：${name}</h3>`;
-                html += `<p class="note">预判对手释放克制你的技能或换精灵，提前换上反制的精灵</p>`;
+                html += `<p class="note">预判对手释放克制你的技能或换精灵，提前选择反制技能或换精灵</p>`;
 
                 if (resistedAttackers.length > 0) {
                     resistedAttackers.sort((a, b) => a.mult - b.mult);
@@ -565,7 +565,7 @@
                 const resisted = results.filter(r => r.mult < 1).sort((a, b) => a.mult - b.mult);
 
                 let html = `<h3>⚔️ 攻击方：${name}</h3>`;
-                html += `<p class="note">预判对手换上抵抗你攻击的精灵，提前换上反制的精灵或技能</p>`;
+                html += `<p class="note">预判对手换上抵抗你攻击的精灵，提前选择反制技能或换精灵</p>`;
 
                 if (effective.length > 0) {
                     html += `<h4>⚔️ 攻击优势（倍率>1）</h4><div class="scroll-box"><ul class="counter-list">`;
