@@ -8,8 +8,8 @@ const C = {
   chartOuterFocus: '#22C55E',
   chartInnerFocus: '#4ADE80',
   chartStrokeSubtle: 'rgba(255,255,255,0.06)',
-  chartLabel: 'rgba(255,255,255,0.18)',
-  chartLabelDim: 'rgba(255,255,255,0.05)',
+  chartLabel: 'rgba(255,255,255,0.45)',
+  chartLabelDim: 'rgba(255,255,255,0.15)',
   textLabel: '#787B90',
   textMuted: '#5A6280',
 };
