@@ -14,10 +14,7 @@
   margin-bottom: 10px;
 }
 .title-accent {
-  background: linear-gradient(135deg,#F59E0B,#D97706);
-  color: #fff;
-  padding: 0 10px;
-  border-radius: 4px;
+  color: #E8ECF4;
   font-size: 20px;
   font-weight: 700;
 }
