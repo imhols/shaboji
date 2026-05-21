@@ -7,8 +7,8 @@
   </view>
   <view class="mode-bar">
     <view class="mode-switch">
-      <view class="mode-btn {{mode==='defense'?'active':''}}" data-mode="defense" bindtap="switchMode">防守</view>
       <view class="mode-btn {{mode==='attack'?'active':''}}" data-mode="attack" bindtap="switchMode">攻击</view>
+      <view class="mode-btn {{mode==='defense'?'active':''}}" data-mode="defense" bindtap="switchMode">防守</view>
     </view>
   </view>
 
