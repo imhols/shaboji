@@ -1,0 +1,63 @@
+<view class="container">
+  <view class="header">
+    <view class="header-title">
+      <text class="title-accent">属性</text>
+      <text class="title-normal">克制 分析</text>
+    </view>
+  </view>
+  <view class="mode-bar">
+    <view class="mode-switch">
+      <view class="mode-btn {{mode==='defense'?'active':''}}" data-mode="defense" bindtap="switchMode">防守</view>
+      <view class="mode-btn {{mode==='attack'?'active':''}}" data-mode="attack" bindtap="switchMode">攻击</view>
+    </view>
+  </view>
+
+  <view class="selected-bar">
+    <block wx:if="{{selectedTypes.length===0}}">
+      <text class="bar-placeholder">点一点属性开始分析~</text>
+    </block>
+    <block wx:else>
+      <view class="chip" wx:for="{{selectedTypes}}" wx:key="this">
+        <image class="chip-icon" src="/images/{{item}}.png" mode="aspectFit"/>
+        <text>{{item}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="type-grid">
+    <view
+      class="type-btn {{selectedMap[item]?'selected':''}}"
+      wx:for="{{types}}" wx:key="this"
+      data-type="{{item}}"
+      bindtap="toggleType"
+    >
+      <image class="type-icon" src="/images/{{item}}.png" mode="aspectFit"/>
+      <text class="type-label">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="chart-area">
+    <view hidden="{{!showChart}}">
+      <canvas type="2d" id="chartCanvas" class="chart-canvas"
+        style="width:{{canvasSize}}px;height:{{canvasSize}}px;"
+        bindtouchstart="onCanvasTouch"
+      />
+      <view class="legend">
+        <text><text class="dot green"></text><text class="l-green">优势</text></text>
+        <text><text class="dot red"></text><text class="l-red">劣势</text></text>
+        <text><text class="dot gray"></text><text class="l-gray">中性</text></text>
+      </view>
+    </view>
+    <view hidden="{{showChart}}">
+      <view class="empty-state">
+        <text>选几个属性</text>
+        <text>看看 <text class="empty-accent">环形图</text> 分析吧~</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="chart-tooltip" hidden="{{!tooltip.show}}"
+    style="left:{{tooltip.x}}px;top:{{tooltip.y}}px;">
+    {{tooltip.text}}
+  </view>
+</view>

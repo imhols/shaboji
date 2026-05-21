@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>属性克制分析</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-page: #0B0E17;
+    --bg-surface: #141829;
+    --bg-card: #1C2138;
+    --bg-chips: #1A2A44;
+    --bg-hover-btn: #1A1F36;
+    --bg-selected-btn: #22C55E;
+
+    --text-primary: #E8ECF4;
+    --text-secondary: #9098B0;
+    --text-muted: #5A6280;
+    --text-dim: #484E70;
+    --text-label: #787B90;
+    --text-green: #4ADE80;
+    --text-red: #F87171;
+
+    --border-color: #2A3050;
+    --border-width: 1.5px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+
+    --accent: #22C55E;
+    --accent-red: #EF4444;
+    --accent-text: #fff;
+
+    --chart-green: #22C55E;
+    --chart-green-light: #4ADE80;
+    --chart-red: #EF4444;
+    --chart-red-light: #F87171;
+    --chart-gray: #5A5A7A;
+    --chart-gray-light: #7A7A9A;
+    --chart-focus: #22C55E;
+    --chart-focus-stroke: #4ADE80;
+    --chart-outer-focus: #22C55E;
+    --chart-inner-focus: #4ADE80;
+    --chart-stroke-subtle: rgba(255,255,255,0.06);
+    --chart-base-ring: rgba(255,255,255,0.04);
+    --chart-center-fill: rgba(255,255,255,0.05);
+    --chart-center-fill-focus: rgba(255,255,255,0.1);
+    --chart-dot-fill: rgba(255,255,255,0.06);
+    --chart-icon-opacity: 0.8;
+    --chart-icon-dim: 0.2;
+    --chart-label: rgba(255,255,255,0.18);
+    --chart-label-dim: rgba(255,255,255,0.05);
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px 20px;
+  }
+  .container { max-width: 680px; width: 100%; }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+  }
+  .header h1 span {
+    background: linear-gradient(135deg,#22C55E,#16A34A);
+    color: #fff;
+    padding: 0 10px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .header .end { display: flex; align-items: center; gap: 8px; }
+
+  .mode-switch {
+    display: flex;
+    background: var(--bg-surface);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    padding: 2px;
+    border: var(--border-width) solid var(--border-color);
+  }
+  .mode-switch .mode-btn {
+    padding: 4px 14px;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    user-select: none;
+  }
+  .mode-switch .mode-btn.active {
+    background: var(--text-primary);
+    color: var(--bg-surface);
+  }
+  .mode-switch .mode-btn:not(.active):hover { color: var(--text-secondary); }
+
+  .selected-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+    min-height: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .selected-bar .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--bg-chips);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 1px 8px 1px 6px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    border: var(--border-width) solid var(--border-color);
+    animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .selected-bar .chip img { width: 16px; height: 16px; }
+  @keyframes popIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  .type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 5px 3px;
+    background: var(--bg-card);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s ease;
+  }
+  .type-btn:active { transform: translate(1px, 1px); }
+  .type-btn:hover { background: var(--bg-hover-btn); }
+  .type-btn.selected {
+    background: var(--bg-selected-btn);
+    border-color: var(--bg-selected-btn);
+  }
+  .type-btn.selected img { transform: scale(1.08); filter: brightness(1.15); }
+  .type-btn img { width: 24px; height: 24px; pointer-events: none; transition: transform 0.15s ease; }
+  .type-btn span { font-size: 10px; color: var(--text-label); font-weight: 600; pointer-events: none; }
+  .type-btn.selected span { color: var(--accent-text); }
+
+  .chart-area {
+    background: var(--bg-surface);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slideUp 0.3s ease;
+    position: relative;
+  }
+  .chart-area svg { max-width: 100%; height: auto; display: block; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    animation: fadeIn 0.3s ease 0.15s both;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .legend .dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 3px;
+    vertical-align: middle;
+  }
+  .legend .dot.green { background: var(--chart-green); }
+  .legend .dot.red { background: var(--chart-red); }
+  .legend .dot.gray { background: var(--chart-gray-light); }
+  .legend .l-green { color: var(--text-green); }
+  .legend .l-red { color: var(--text-red); }
+  .legend .l-gray { color: var(--text-secondary); }
+
+  .chart-tooltip {
+    position: fixed;
+    background: #1C2140;
+    color: var(--text-primary);
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 100;
+    display: none;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.08);
+    animation: tipIn 0.1s ease;
+  }
+  @keyframes tipIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .empty-state strong { color: var(--accent); }
+
+  @media (max-width: 540px) {
+    body { padding: 12px 8px 16px; }
+    .type-grid { gap: 3px; }
+    .type-btn img { width: 20px; height: 20px; }
+    .type-btn span { font-size: 9px; }
+    .type-btn { padding: 4px 2px; }
+    .header h1 { font-size: 18px; }
+    .mode-switch .mode-btn { padding: 3px 10px; font-size: 12px; }
+    .chart-area { padding: 10px 8px 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><span>属性</span>克制 分析</h1>
+    <div class="end">
+      <div class="mode-switch">
+        <button class="mode-btn active" data-mode="defense" onclick="switchMode('defense')">防守</button>
+        <button class="mode-btn" data-mode="attack" onclick="switchMode('attack')">攻击</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="selected-bar" id="selected-bar">点一点属性开始分析~</div>
+
+  <div class="type-grid" id="type-grid"></div>
+
+  <div class="chart-area" id="chart-area">
+    <div id="chart-container">
+      <div class="empty-state">
+        选几个属性<br>看看 <strong>环形图</strong> 分析吧~
+      </div>
+    </div>
+    <div class="legend" id="legend" style="display:none">
+      <span><span class="dot green"></span><span class="l-green">优势</span></span>
+      <span><span class="dot red"></span><span class="l-red">劣势</span></span>
+      <span><span class="dot gray"></span><span class="l-gray">中性</span></span>
+    </div>
+  </div>
+</div>
+
+<div class="chart-tooltip" id="chart-tooltip"></div>
+
+<script>
+const iconUrls = {
+  "普通":"icons/普通.png","草":"icons/草.png","火":"icons/火.png",
+  "水":"icons/水.png","光":"icons/光.png","地":"icons/地.png",
+  "冰":"icons/冰.png","龙":"icons/龙.png","电":"icons/电.png",
+  "毒":"icons/毒.png","虫":"icons/虫.png","武":"icons/武.png",
+  "翼":"icons/翼.png","萌":"icons/萌.png","幽":"icons/幽.png",
+  "恶":"icons/恶.png","机械":"icons/机械.png","幻":"icons/幻.png"
+};
+const types = Object.keys(iconUrls);
+
+const data = {"普通":{"普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":1,"翼":0,"萌":0,"幽":-1,"恶":0,"机械":0,"幻":0},"草":{"普通":0,"草":0,"火":1,"水":-1,"光":-1,"地":-1,"冰":1,"龙":0,"电":-1,"毒":1,"虫":1,"武":0,"翼":1,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"火":{"普通":0,"草":-1,"火":0,"水":1,"光":-1,"地":0,"冰":-1,"龙":0,"电":0,"毒":0,"虫":-1,"武":0,"翼":0,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"水":{"普通":0,"草":1,"火":-1,"水":0,"光":-1,"地":0,"冰":-1,"龙":0,"电":1,"毒":0,"虫":0,"武":0,"翼":0,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"光":{"普通":0,"草":-1,"火":-1,"水":-1,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":0,"翼":-1,"萌":0,"幽":0,"恶":-1,"机械":0,"幻":0},"地":{"普通":0,"草":1,"火":-1,"水":1,"光":0,"地":0,"冰":1,"龙":0,"电":-1,"毒":-1,"虫":0,"武":0,"翼":0,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"冰":{"普通":0,"草":-1,"火":1,"水":0,"光":-1,"地":0,"冰":0,"龙":-1,"电":0,"毒":0,"虫":0,"武":1,"翼":-1,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"龙":{"普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":1,"龙":0,"电":-1,"毒":0,"虫":0,"武":0,"翼":0,"萌":0,"幽":1,"恶":0,"机械":0,"幻":0},"电":{"普通":0,"草":0,"火":0,"水":0,"光":0,"地":-1,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":0,"翼":1,"萌":0,"幽":0,"恶":0,"机械":-1,"幻":0},"毒":{"普通":0,"草":-1,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":-1,"武":0,"翼":0,"萌":1,"幽":0,"恶":0,"机械":0,"幻":0},"虫":{"普通":0,"草":-1,"火":1,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":1,"翼":1,"萌":1,"幽":0,"恶":0,"机械":0,"幻":0},"武":{"普通":1,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":0,"翼":0,"萌":1,"幽":0,"恶":-1,"机械":0,"幻":0},"翼":{"普通":0,"草":-1,"火":0,"水":0,"光":0,"地":-1,"冰":0,"龙":0,"电":1,"毒":0,"虫":-1,"武":0,"翼":0,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"萌":{"普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":-1,"虫":1,"武":1,"翼":0,"萌":0,"幽":1,"恶":0,"机械":0,"幻":-1},"幽":{"普通":-1,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":-1,"虫":0,"武":0,"翼":0,"萌":0,"幽":0,"恶":1,"机械":0,"幻":0},"恶":{"普通":0,"草":0,"火":0,"水":0,"光":-1,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":-1,"翼":0,"萌":1,"幽":-1,"恶":0,"机械":0,"幻":0},"机械":{"普通":0,"草":0,"火":1,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":1,"翼":0,"萌":0,"幽":0,"恶":0,"机械":0,"幻":0},"幻":{"普通":0,"草":0,"火":0,"水":0,"光":0,"地":0,"冰":0,"龙":0,"电":0,"毒":0,"虫":0,"武":0,"翼":0,"萌":-1,"幽":0,"恶":1,"机械":0,"幻":0}};
+
+let selectedTypes = [];
+let mode = 'defense';
+let chartFocus = null;
+
+function getMultiplier(a,d){let p=0,m=0;for(let t of d){const v=data[t][a];if(v===1)p++;else if(v===-1)m++;}return(1+p)*Math.pow(0.5,m);}
+function getAttackMultiplier(a,d){let p=0,m=0;for(let t of a){const v=data[d][t];if(v===1)p++;else if(v===-1)m++;}return(1+p)*Math.pow(0.5,m);}
+
+const grid = document.getElementById('type-grid');
+types.forEach(t => {
+  const b = document.createElement('div');
+  b.className = 'type-btn';
+  b.innerHTML = `<img src="${iconUrls[t]}" alt=""><span>${t}</span>`;
+  b.addEventListener('click', () => toggleType(t));
+  grid.appendChild(b);
+});
+
+function toggleType(type) {
+  const i = selectedTypes.indexOf(type);
+  if (i !== -1) selectedTypes.splice(i, 1); else selectedTypes.push(type);
+  chartFocus = null;
+  updateUI();
+  if (selectedTypes.length > 0) render();
+  else {
+    document.getElementById('chart-container').innerHTML = `<div class="empty-state">选几个属性<br>看看 <strong>环形图</strong> 分析吧~</div>`;
+    document.getElementById('legend').style.display = 'none';
+  }
+}
+
+function updateUI() {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('selected', selectedTypes.includes(b.querySelector('span').textContent)));
+  const bar = document.getElementById('selected-bar');
+  if (selectedTypes.length === 0) bar.innerHTML = '点一点属性开始分析~';
+  else bar.innerHTML = selectedTypes.map(t => `<span class="chip"><img src="${iconUrls[t]}">${t}</span>`).join(' + ');
+}
+
+function switchMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  if (selectedTypes.length > 0) render();
+}
+
+function render() {
+  const isD = mode === 'defense';
+  const items = [];
+  for (let t of types) {
+    const cells = selectedTypes.map(s => ({type:s, val:isD ? data[s][t] : data[t][s]}));
+    items.push({type:t, cells, effCount:cells.filter(c=>c.val===1).length, resCount:cells.filter(c=>c.val===-1).length});
+  }
+  document.getElementById('legend').style.display = 'flex';
+  drawChart(items, isD);
+}
+
+const cssCache = {};
+function cv(key) {
+  if (!cssCache[key]) {
+    cssCache[key] = getComputedStyle(document.documentElement).getPropertyValue(key).trim();
+  }
+  return cssCache[key];
+}
+function cc(hexVar, alpha) {
+  const v = cv(hexVar);
+  return `rgba(${parseInt(v.slice(1,3),16)},${parseInt(v.slice(3,5),16)},${parseInt(v.slice(5,7),16)},${alpha})`;
+}
+
+function getRadii() {
+  const n = selectedTypes.length;
+  const t = Math.min(n / 10, 1);
+  return { iR: Math.round(65 + t * 50), oR: 165, centerR: Math.round(Math.max(12, 38 - t * 26)), gap: 2 };
+}
+
+function drawChart(items, isD) {
+  const c = document.getElementById('chart-container');
+  c.innerHTML = '';
+  const sz = 360, cx = sz/2, cy = sz/2, NS = 'http://www.w3.org/2000/svg';
+  const { iR, oR, centerR, gap } = getRadii();
+  const seg = Math.PI * 2 / items.length, midR = iR + (oR-iR)/2, pad = gap / midR;
+  const S = (a,b,r,ang) => ({x:a+r*Math.cos(ang), y:b+r*Math.sin(ang)});
+  const arc = (s,e,r1,r2) => {
+    const s1=S(cx,cy,r1,e),e1=S(cx,cy,r1,s),s2=S(cx,cy,r2,e),e2=S(cx,cy,r2,s),lg=e-s>Math.PI?1:0;
+    return `M ${s1.x} ${s1.y} A ${r1} ${r1} 0 ${lg} 0 ${e1.x} ${e1.y} L ${e2.x} ${e2.y} A ${r2} ${r2} 0 ${lg} 1 ${s2.x} ${s2.y} Z`;
+  };
+  const svg = document.createElementNS(NS,'svg');
+  svg.setAttribute('width',sz); svg.setAttribute('height',sz); svg.setAttribute('viewBox',`0 0 ${sz} ${sz}`);
+
+  // Outer ring decorative base circle (subtle ring outline)
+  const baseRing = document.createElementNS(NS,'circle');
+  baseRing.setAttribute('cx',cx); baseRing.setAttribute('cy',cy);
+  baseRing.setAttribute('r', (iR+oR)/2);
+  baseRing.setAttribute('fill','none');
+  baseRing.setAttribute('stroke',cv('--chart-base-ring'));
+  baseRing.setAttribute('stroke-width', oR - iR);
+  svg.appendChild(baseRing);
+
+  const outerIcons = [];
+
+  // Outer ring segments
+  items.forEach((item,i) => {
+    const sA = -Math.PI/2 + i*seg + pad/2, eA = sA + seg - pad;
+    const isF = chartFocus?.source==='outer'&&chartFocus?.type===item.type;
+    const isDm = chartFocus?.source==='outer'&&!isF;
+    let good, bad;
+    if(chartFocus?.source==='inner'){
+      const cell = item.cells.find(c=>c.type===chartFocus.type);
+      good = cell?.val===(isD?-1:1)?1:0; bad = cell?.val===(isD?1:-1)?1:0;
+    } else { good = isD?item.resCount:item.effCount; bad = isD?item.effCount:item.resCount; }
+
+    const intensity = (count) => Math.min(0.12 + count * 0.22, 0.55);
+    let base, lighter, segC;
+    if(good>0){
+      const t=intensity(good); segC='green';
+      base=cc('--chart-green',isDm?0.04:t);
+      lighter=cc('--chart-green-light',isDm?0.02:t*0.5);
+    } else if(bad>0){
+      const t=intensity(bad); segC='red';
+      base=cc('--chart-red',isDm?0.04:t);
+      lighter=cc('--chart-red-light',isDm?0.02:t*0.5);
+    } else {
+      segC='gray';
+      base=cc('--chart-gray',isDm?0.02:0.1);
+      lighter=cc('--chart-gray-light',isDm?0.01:0.05);
+    }
+
+    // Main segment
+    const p = document.createElementNS(NS,'path');
+    p.setAttribute('d',arc(sA,eA,iR,oR)); p.setAttribute('fill',base);
+    p.setAttribute('stroke',isF?cv('--chart-outer-focus'):cv('--chart-stroke-subtle'));
+    p.setAttribute('stroke-width',isF?'3':'0.5');
+    p.style.cursor='pointer'; p.style.transition='fill .25s ease,stroke .25s ease';
+    p.addEventListener('mouseenter',e=>{
+      p.setAttribute('stroke-width','3'); p.setAttribute('stroke',cv('--chart-focus-stroke'));
+      showTooltip(e,item,isD);
+    });
+    p.addEventListener('mousemove',moveTooltip);
+    p.addEventListener('mouseleave',e=>{
+      p.setAttribute('stroke-width',isF?'3':'0.5'); p.setAttribute('stroke',isF?cv('--chart-outer-focus'):cv('--chart-stroke-subtle'));
+      hideTooltip();
+    });
+    p.addEventListener('click',()=>{
+      if(chartFocus?.source==='outer'&&chartFocus?.type===item.type)chartFocus=null;
+      else chartFocus={source:'outer',type:item.type};
+      drawChart(items,isD);
+    });
+    svg.appendChild(p);
+
+    // Highlight overlay (lighter inner edge)
+    const hl = document.createElementNS(NS,'path');
+    hl.setAttribute('d',arc(sA+0.03,eA-0.03,iR+6,iR+20)); hl.setAttribute('fill',lighter);
+    hl.style.pointerEvents='none';
+    svg.appendChild(hl);
+
+    // Icon positioned at 65% of ring thickness (toward outer edge)
+    const mA = sA + (eA - sA) / 2;
+    const iconR = iR + (oR - iR) * 0.62;
+    const ip = S(cx, cy, iconR, mA);
+    const img = document.createElementNS(NS,'image');
+    img.setAttribute('href',iconUrls[item.type]);
+    img.setAttribute('x',ip.x-12); img.setAttribute('y',ip.y-12);
+    img.setAttribute('width',24); img.setAttribute('height',24);
+    img.style.pointerEvents='none';
+    img.style.opacity=isDm?cv('--chart-icon-dim'):cv('--chart-icon-opacity');
+    img.style.transition='opacity .25s ease';
+    svg.appendChild(img);
+
+    // Type label
+    const txt = document.createElementNS(NS,'text');
+    const labelR = iR + (oR - iR) * 0.25;
+    const tp = S(cx, cy, labelR, mA);
+    txt.setAttribute('x',tp.x); txt.setAttribute('y',tp.y+3);
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('fill',isDm?cv('--chart-label-dim'):cv('--chart-label'));
+    txt.setAttribute('font-family','system-ui');
+    txt.setAttribute('font-size','9');
+    txt.style.pointerEvents='none';
+    txt.style.transition='fill .25s ease';
+    txt.textContent = item.type;
+    svg.appendChild(txt);
+  });
+
+  // Inner ring
+  if(selectedTypes.length>0){
+    const iSeg = Math.PI*2/selectedTypes.length;
+    selectedTypes.forEach((t,i)=>{
+      const sA=-Math.PI/2+i*iSeg+pad/2, eA=sA+iSeg-pad;
+      const isF=chartFocus?.source==='inner'&&chartFocus?.type===t;
+      const isDm=chartFocus?.source==='inner'&&!isF;
+      let fill;
+      if(isF){fill=cv('--chart-focus');}
+      else if(chartFocus?.source==='outer'){
+        const cell=items.find(ci=>ci.type===chartFocus.type)?.cells.find(c=>c.type===t);
+        if(cell?.val===1){fill=cc('--chart-red',0.55);}
+        else if(cell?.val===-1){fill=cc('--chart-green',0.55);}
+        else{fill=cc('--chart-gray',isDm?0.08:0.25);}
+      } else {fill=cc('--chart-gray',isDm?0.1:0.28);}
+
+      // Inner segment
+      const p = document.createElementNS(NS,'path');
+      p.setAttribute('d',arc(sA,eA,0,iR-4)); p.setAttribute('fill',fill);
+      p.setAttribute('stroke',isF?cv('--chart-inner-focus'):cv('--chart-stroke-subtle'));
+      p.setAttribute('stroke-width',isF?'3':'0.5');
+      p.style.cursor='pointer'; p.style.transition='fill .25s ease,stroke .25s ease';
+
+      // Icon
+      const mA=sA+(eA-sA)/2, iP=S(cx,cy,iR/1.35,mA);
+      const img=document.createElementNS(NS,'image');
+      img.setAttribute('href',iconUrls[t]); img.setAttribute('x',iP.x-10); img.setAttribute('y',iP.y-10);
+      img.setAttribute('width',20); img.setAttribute('height',20); img.style.pointerEvents='none';
+
+      p.addEventListener('click',()=>{
+        if(chartFocus?.source==='inner'&&chartFocus?.type===t)chartFocus=null;
+        else chartFocus={source:'inner',type:t};
+        drawChart(items,isD);
+      });
+      svg.appendChild(p); svg.appendChild(img);
+    });
+  }
+
+  // Decorative center circle
+  const cRing = document.createElementNS(NS,'circle');
+  cRing.setAttribute('cx',cx); cRing.setAttribute('cy',cy);
+  cRing.setAttribute('r',centerR);
+  cRing.setAttribute('fill',chartFocus?cv('--chart-center-fill-focus'):cv('--chart-center-fill'));
+  cRing.setAttribute('stroke',cv('--chart-focus-stroke')); cRing.setAttribute('stroke-width','1.5');
+  cRing.setAttribute('stroke-dasharray','6,4');
+  cRing.style.transition='fill .3s ease';
+  cRing.style.pointerEvents='none';
+  svg.appendChild(cRing);
+
+  // Inner decorative dots
+  const dotCount=8;
+  for(let i=0;i<dotCount;i++){
+    const a=Math.PI*2*i/dotCount, rd=Math.round(centerR*0.6), dp=S(cx,cy,rd,a);
+    const dot=document.createElementNS(NS,'circle');
+    dot.setAttribute('cx',dp.x); dot.setAttribute('cy',dp.y);
+    dot.setAttribute('r',2); dot.setAttribute('fill',cv('--chart-dot-fill'));
+    dot.style.pointerEvents='none';
+    svg.appendChild(dot);
+  }
+
+  // Center text
+  const g=document.createElementNS(NS,'g');
+  g.setAttribute('transform',`translate(${cx},${cy})`);
+  g.style.pointerEvents='none';
+  const l1=document.createElementNS(NS,'text');
+  l1.setAttribute('y',-8); l1.setAttribute('text-anchor','middle');
+  l1.setAttribute('fill',cv('--text-label')); l1.setAttribute('font-family','system-ui');
+  l1.setAttribute('font-size','13'); l1.setAttribute('font-weight','700');
+  l1.textContent=isD?'防守':'攻击';
+  g.appendChild(l1);
+  const l2=document.createElementNS(NS,'text');
+  l2.setAttribute('y',9); l2.setAttribute('text-anchor','middle');
+  l2.setAttribute('fill',cv('--text-muted')); l2.setAttribute('font-family','system-ui');
+  l2.setAttribute('font-size','17'); l2.setAttribute('font-weight','700');
+  l2.textContent=selectedTypes.length;
+  g.appendChild(l2);
+  const l3=document.createElementNS(NS,'text');
+  l3.setAttribute('y',22); l3.setAttribute('text-anchor','middle');
+  l3.setAttribute('fill',cv('--text-muted')); l3.setAttribute('font-family','system-ui');
+  l3.setAttribute('font-size','10');
+  l3.textContent='个属性';
+  g.appendChild(l3);
+  svg.appendChild(g);
+
+  c.appendChild(svg);
+}
+
+const tip=document.getElementById('chart-tooltip');
+function showTooltip(e,item,isD){
+  let good,bad;
+  if(chartFocus?.source==='inner'){const c=item.cells.find(cc=>cc.type===chartFocus.type);good=c?.val===(isD?-1:1)?1:0;bad=c?.val===(isD?1:-1)?1:0;}
+  else{good=isD?item.resCount:item.effCount;bad=isD?item.effCount:item.resCount;}
+  const p=[];if(good>0)p.push(`+${good}`);if(bad>0)p.push(`-${bad}`);if(!p.length)p.push('0');
+  tip.textContent=`${item.type}  ${p.join(' ')}`;tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';
+}
+function moveTooltip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';}
+function hideTooltip(){tip.style.display='none';}
+
+</script>
+</body>
+</html>
