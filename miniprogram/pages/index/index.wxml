@@ -56,8 +56,4 @@
     </view>
   </view>
 
-  <view class="chart-tooltip" hidden="{{!tooltip.show}}"
-    style="left:{{tooltip.x}}px;top:{{tooltip.y}}px;">
-    {{tooltip.text}}
-  </view>
 </view>

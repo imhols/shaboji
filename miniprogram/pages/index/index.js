@@ -28,7 +28,6 @@ Page({
     chartFocus: null,
     showChart: false,
     canvasSize: 320,
-    tooltip: { show: false, x: 0, y: 0, text: '' },
   },
 
   onLoad() {
@@ -145,7 +144,7 @@ Page({
     if (dist >= iR - 4) {
       const seg = Math.PI * 2 / types.length;
       const idx = Math.floor(a / seg);
-      if (idx >= 0 && idx < types.length) this.handleOuterTap(types[idx], e);
+      if (idx >= 0 && idx < types.length) this.handleOuterTap(types[idx]);
     } else {
       const st = this.data.selectedTypes;
       if (st.length === 0) return;
@@ -155,11 +154,10 @@ Page({
     }
   },
 
-  handleOuterTap(type, e) {
+  handleOuterTap(type) {
     const focus = this.data.chartFocus;
     let next = (focus && focus.source === 'outer' && focus.type === type) ? null : { source: 'outer', type };
     this.setData({ chartFocus: next }, () => this.drawChart());
-    this.showTooltip(type, e);
   },
 
   handleInnerTap(type) {
@@ -168,38 +166,7 @@ Page({
     this.setData({ chartFocus: next }, () => this.drawChart());
   },
 
-  showTooltip(type, e) {
-    const isD = this.data.mode === 'defense';
-    const items = this.buildItems(isD);
-    const item = items.find((i) => i.type === type);
-    if (!item) return;
-    const focus = this.data.chartFocus;
-    let good, bad;
-    if (focus && focus.source === 'inner') {
-      const c = item.cells.find((cc) => cc.type === focus.type);
-      good = c && c.val === (isD ? -1 : 1) ? 1 : 0;
-      bad = c && c.val === (isD ? 1 : -1) ? 1 : 0;
-    } else {
-      good = isD ? item.resCount : item.effCount;
-      bad = isD ? item.effCount : item.resCount;
-    }
-    const p = [];
-    if (good > 0) p.push(`+${good}`);
-    if (bad > 0) p.push(`-${bad}`);
-    if (!p.length) p.push('0');
-    const text = `${item.type}  ${p.join(' ')}`;
-    this.setData({
-      tooltip: { show: true, x: e.touches[0].clientX + 10, y: e.touches[0].clientY - 20, text }
-    });
-    if (this.tooltipTimer) clearTimeout(this.tooltipTimer);
-    this.tooltipTimer = setTimeout(() => {
-      this.setData({ tooltip: { show: false, x: 0, y: 0, text: '' } });
-    }, 2000);
-  },
 
-  onUnload() {
-    if (this.tooltipTimer) clearTimeout(this.tooltipTimer);
-  },
 
   drawChart() {
     if (!this.ready || !this.ctx) return;

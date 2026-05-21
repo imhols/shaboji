@@ -136,19 +136,6 @@
 .l-red { color: #F87171; }
 .l-gray { color: #9098B0; }
 
-.chart-tooltip {
-  position: fixed;
-  background: #1C2140;
-  color: #E8ECF4;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  pointer-events: none;
-  z-index: 100;
-  white-space: nowrap;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
 .empty-state {
   text-align: center;
   padding: 50px 20px;
