@@ -2,11 +2,11 @@ const { iconUrls, types, data, getMultiplier, getAttackMultiplier } = require('.
 
 const C = {
   chartBaseRing: 'rgba(255,255,255,0.04)',
-  chartGreen: '#F59E0B',
+  chartGreen: '#22C55E',
   chartRed: '#EF4444',
   chartGray: '#5A5A7A',
-  chartOuterFocus: '#F59E0B',
-  chartInnerFocus: '#FCD34D',
+  chartOuterFocus: '#22C55E',
+  chartInnerFocus: '#4ADE80',
   chartStrokeSubtle: 'rgba(255,255,255,0.06)',
   chartLabel: 'rgba(255,255,255,0.45)',
   chartLabelDim: 'rgba(255,255,255,0.15)',

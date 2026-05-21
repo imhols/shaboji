@@ -129,10 +129,10 @@
   margin-right: 3px;
   vertical-align: middle;
 }
-.dot.green { background: #F59E0B; }
+.dot.green { background: #22C55E; }
 .dot.red { background: #EF4444; }
 .dot.gray { background: #7A7A9A; }
-.l-green { color: #FCD34D; }
+.l-green { color: #4ADE80; }
 .l-red { color: #F87171; }
 .l-gray { color: #9098B0; }
 
@@ -143,4 +143,4 @@
   font-size: 16px;
   line-height: 1.8;
 }
-.empty-accent { color: #F59E0B; }
+.empty-accent { color: #22C55E; }
