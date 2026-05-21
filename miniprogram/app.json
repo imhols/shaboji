@@ -2,6 +2,7 @@
   "pages": ["pages/index/index"],
   "window": {
     "navigationStyle": "custom",
+    "navigationBarTitleText": "洛克属性打击面分析",
     "backgroundColor": "#0B0E17",
     "backgroundTextStyle": "light"
   },
