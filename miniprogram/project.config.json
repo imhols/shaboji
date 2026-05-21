@@ -1,5 +1,5 @@
 {
-  "description": "洛克王国属性克制分析",
+  "description": "洛克属性打击面分析",
   "packOptions": {
     "ignore": [],
     "include": []
@@ -37,7 +37,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.7.8",
-  "appid": "wxdc92eb4d97143f54",
+  "appid": "wxe70f638aaccf397d",
   "projectname": "洛克属性打击面分析",
   "condition": {},
   "simulatorPluginLibVersion": {},
