@@ -28,6 +28,8 @@ Page({
     chartFocus: null,
     showChart: false,
     canvasSize: 320,
+    legendGood: '攻击优势',
+    legendBad: '攻击劣势',
   },
 
   onLoad() {
@@ -95,7 +97,11 @@ Page({
 
   switchMode(e) {
     const m = e.currentTarget.dataset.mode;
-    this.setData({ mode: m, chartFocus: null }, () => {
+    this.setData({
+      mode: m, chartFocus: null,
+      legendGood: m === 'attack' ? '攻击优势' : '防守优势',
+      legendBad: m === 'attack' ? '攻击劣势' : '防守劣势',
+    }, () => {
       if (this.data.selectedTypes.length > 0 && this.ready) this.drawChart();
     });
   },

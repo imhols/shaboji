@@ -43,8 +43,8 @@
         bindtouchstart="onCanvasTouch"
       />
       <view class="legend">
-        <text><text class="dot green"></text><text class="l-green">优势</text></text>
-        <text><text class="dot red"></text><text class="l-red">劣势</text></text>
+        <text><text class="dot green"></text><text class="l-green">{{legendGood}}</text></text>
+        <text><text class="dot red"></text><text class="l-red">{{legendBad}}</text></text>
         <text><text class="dot gray"></text><text class="l-gray">中性</text></text>
       </view>
     </view>

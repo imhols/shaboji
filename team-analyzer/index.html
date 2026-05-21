@@ -257,8 +257,8 @@
       </div>
     </div>
     <div class="legend" id="legend" style="display:none">
-      <span><span class="dot green"></span><span class="l-green">优势</span></span>
-      <span><span class="dot red"></span><span class="l-red">劣势</span></span>
+      <span><span class="dot green"></span><span class="l-green" id="legend-good">攻击优势</span></span>
+      <span><span class="dot red"></span><span class="l-red" id="legend-bad">攻击劣势</span></span>
       <span><span class="dot gray"></span><span class="l-gray">中性</span></span>
     </div>
   </div>
@@ -315,6 +315,8 @@ function updateUI() {
 function switchMode(m) {
   mode = m;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  document.getElementById('legend-good').textContent = m === 'attack' ? '攻击优势' : '防守优势';
+  document.getElementById('legend-bad').textContent = m === 'attack' ? '攻击劣势' : '防守劣势';
   if (selectedTypes.length > 0) render();
 }
 
