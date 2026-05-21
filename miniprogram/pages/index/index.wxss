@@ -99,7 +99,7 @@
 .type-btn.selected .type-icon { transform: scale(1.08); }
 .type-btn.selected .type-label { color: #fff; }
 .type-icon { width: 24px; height: 24px; transition: transform 0.15s ease; }
-.type-label { font-size: 10px; color: #787B90; font-weight: 600; }
+.type-label { font-size: 10px; color: #B8BED0; font-weight: 700; }
 
 .chart-area {
   background: #141829;
