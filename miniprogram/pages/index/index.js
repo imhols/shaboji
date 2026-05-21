@@ -3,18 +3,11 @@ const { iconUrls, types, data, getMultiplier, getAttackMultiplier } = require('.
 const C = {
   chartBaseRing: 'rgba(255,255,255,0.04)',
   chartGreen: '#22C55E',
-  chartGreenLight: '#4ADE80',
   chartRed: '#EF4444',
-  chartRedLight: '#F87171',
   chartGray: '#5A5A7A',
-  chartGrayLight: '#7A7A9A',
-  chartFocusStroke: '#4ADE80',
   chartOuterFocus: '#22C55E',
   chartInnerFocus: '#4ADE80',
   chartStrokeSubtle: 'rgba(255,255,255,0.06)',
-  chartCenterFill: 'rgba(255,255,255,0.05)',
-  chartCenterFillFocus: 'rgba(255,255,255,0.1)',
-  chartDotFill: 'rgba(255,255,255,0.06)',
   chartLabel: 'rgba(255,255,255,0.18)',
   chartLabelDim: 'rgba(255,255,255,0.05)',
   textLabel: '#787B90',
@@ -114,7 +107,6 @@ Page({
     return {
       iR: Math.round(65 + t * 50),
       oR: 165,
-      centerR: Math.round(Math.max(12, 38 - t * 26)),
       gap: 2,
     };
   },
@@ -214,7 +206,7 @@ Page({
     const ctx = this.ctx;
     const size = this.data.canvasSize;
     const cx = size / 2, cy = size / 2;
-    const { iR, oR, centerR, gap } = this.getRadii();
+    const { iR, oR, gap } = this.getRadii();
     const seg = Math.PI * 2 / types.length;
     const midR = iR + (oR - iR) / 2;
     const pad = gap / midR;
@@ -246,18 +238,15 @@ Page({
         bad = isD ? item.effCount : item.resCount;
       }
 
-      let segColor, segLight;
+      let segColor;
       if (good > 0) {
         const t = intensity(good);
         segColor = cc(C.chartGreen, isDm ? 0.04 : t);
-        segLight = cc(C.chartGreenLight, isDm ? 0.02 : t * 0.5);
       } else if (bad > 0) {
         const t = intensity(bad);
         segColor = cc(C.chartRed, isDm ? 0.04 : t);
-        segLight = cc(C.chartRedLight, isDm ? 0.02 : t * 0.5);
       } else {
         segColor = cc(C.chartGray, isDm ? 0.02 : 0.12);
-        segLight = cc(C.chartGrayLight, isDm ? 0.01 : 0.06);
       }
 
       ctx.beginPath();
@@ -270,13 +259,6 @@ Page({
       ctx.strokeStyle = isF ? C.chartOuterFocus : C.chartStrokeSubtle;
       ctx.lineWidth = isF ? 3 : 0.5;
       ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, iR + 20, eA - 0.03, sA + 0.03, true);
-      ctx.arc(cx, cy, iR + 6, sA + 0.03, eA - 0.03, false);
-      ctx.closePath();
-      ctx.fillStyle = segLight;
-      ctx.fill();
 
       const mA = sA + (eA - sA) / 2;
       const iconR = iR + (oR - iR) * 0.62;
@@ -336,25 +318,6 @@ Page({
           ctx.drawImage(img, cx + iR2 * Math.cos(mA) - 10, cy + iR2 * Math.sin(mA) - 10, 20, 20);
         }
       });
-    }
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, centerR, 0, Math.PI * 2);
-    ctx.fillStyle = focus ? C.chartCenterFillFocus : C.chartCenterFill;
-    ctx.fill();
-    ctx.setLineDash([6, 4]);
-    ctx.strokeStyle = C.chartFocusStroke;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    const dotCount = 8;
-    for (let i = 0; i < dotCount; i++) {
-      const a = Math.PI * 2 * i / dotCount;
-      ctx.beginPath();
-      ctx.arc(cx + centerR * 0.6 * Math.cos(a), cy + centerR * 0.6 * Math.sin(a), 2, 0, Math.PI * 2);
-      ctx.fillStyle = C.chartDotFill;
-      ctx.fill();
     }
 
     ctx.textAlign = 'center';

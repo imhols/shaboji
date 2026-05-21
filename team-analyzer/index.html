@@ -37,9 +37,7 @@
     --accent-text: #fff;
 
     --chart-green: #22C55E;
-    --chart-green-light: #4ADE80;
     --chart-red: #EF4444;
-    --chart-red-light: #F87171;
     --chart-gray: #5A5A7A;
     --chart-gray-light: #7A7A9A;
     --chart-focus: #22C55E;
@@ -48,9 +46,6 @@
     --chart-inner-focus: #4ADE80;
     --chart-stroke-subtle: rgba(255,255,255,0.06);
     --chart-base-ring: rgba(255,255,255,0.04);
-    --chart-center-fill: rgba(255,255,255,0.05);
-    --chart-center-fill-focus: rgba(255,255,255,0.1);
-    --chart-dot-fill: rgba(255,255,255,0.06);
     --chart-icon-opacity: 0.8;
     --chart-icon-dim: 0.2;
     --chart-label: rgba(255,255,255,0.18);
@@ -370,7 +365,7 @@ function cc(hexVar, alpha) {
 function getRadii() {
   const n = selectedTypes.length;
   const t = Math.min(n / 10, 1);
-  return { iR: Math.round(65 + t * 50), oR: 165, centerR: Math.round(Math.max(12, 38 - t * 26)), gap: 2 };
+  return { iR: Math.round(65 + t * 50), oR: 165, gap: 2 };
 }
 
 function drawChart(items, isD) {
@@ -410,19 +405,15 @@ function drawChart(items, isD) {
     } else { good = isD?item.resCount:item.effCount; bad = isD?item.effCount:item.resCount; }
 
     const intensity = (count) => Math.min(0.12 + count * 0.22, 0.55);
-    let base, lighter, segC;
+    let base;
     if(good>0){
-      const t=intensity(good); segC='green';
+      const t=intensity(good);
       base=cc('--chart-green',isDm?0.04:t);
-      lighter=cc('--chart-green-light',isDm?0.02:t*0.5);
     } else if(bad>0){
-      const t=intensity(bad); segC='red';
+      const t=intensity(bad);
       base=cc('--chart-red',isDm?0.04:t);
-      lighter=cc('--chart-red-light',isDm?0.02:t*0.5);
     } else {
-      segC='gray';
       base=cc('--chart-gray',isDm?0.02:0.1);
-      lighter=cc('--chart-gray-light',isDm?0.01:0.05);
     }
 
     // Main segment
@@ -446,12 +437,6 @@ function drawChart(items, isD) {
       drawChart(items,isD);
     });
     svg.appendChild(p);
-
-    // Highlight overlay (lighter inner edge)
-    const hl = document.createElementNS(NS,'path');
-    hl.setAttribute('d',arc(sA+0.03,eA-0.03,iR+6,iR+20)); hl.setAttribute('fill',lighter);
-    hl.style.pointerEvents='none';
-    svg.appendChild(hl);
 
     // Icon positioned at 65% of ring thickness (toward outer edge)
     const mA = sA + (eA - sA) / 2;
@@ -517,28 +502,6 @@ function drawChart(items, isD) {
       });
       svg.appendChild(p); svg.appendChild(img);
     });
-  }
-
-  // Decorative center circle
-  const cRing = document.createElementNS(NS,'circle');
-  cRing.setAttribute('cx',cx); cRing.setAttribute('cy',cy);
-  cRing.setAttribute('r',centerR);
-  cRing.setAttribute('fill',chartFocus?cv('--chart-center-fill-focus'):cv('--chart-center-fill'));
-  cRing.setAttribute('stroke',cv('--chart-focus-stroke')); cRing.setAttribute('stroke-width','1.5');
-  cRing.setAttribute('stroke-dasharray','6,4');
-  cRing.style.transition='fill .3s ease';
-  cRing.style.pointerEvents='none';
-  svg.appendChild(cRing);
-
-  // Inner decorative dots
-  const dotCount=8;
-  for(let i=0;i<dotCount;i++){
-    const a=Math.PI*2*i/dotCount, rd=Math.round(centerR*0.6), dp=S(cx,cy,rd,a);
-    const dot=document.createElementNS(NS,'circle');
-    dot.setAttribute('cx',dp.x); dot.setAttribute('cy',dp.y);
-    dot.setAttribute('r',2); dot.setAttribute('fill',cv('--chart-dot-fill'));
-    dot.style.pointerEvents='none';
-    svg.appendChild(dot);
   }
 
   // Center text
