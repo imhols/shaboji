@@ -24,7 +24,7 @@ Page({
     types,
     selectedTypes: [],
     selectedMap: {},
-    mode: 'defense',
+    mode: 'attack',
     chartFocus: null,
     showChart: false,
     canvasSize: 320,
