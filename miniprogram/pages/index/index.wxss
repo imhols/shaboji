@@ -14,7 +14,7 @@
   margin-bottom: 10px;
 }
 .title-accent {
-  background: linear-gradient(135deg,#22C55E,#16A34A);
+  background: linear-gradient(135deg,#F59E0B,#D97706);
   color: #fff;
   padding: 0 10px;
   border-radius: 4px;
@@ -93,8 +93,8 @@
 }
 .type-btn:active { opacity: 0.8; }
 .type-btn.selected {
-  background: #22C55E;
-  border-color: #22C55E;
+  background: #F59E0B;
+  border-color: #F59E0B;
 }
 .type-btn.selected .type-icon { transform: scale(1.08); }
 .type-btn.selected .type-label { color: #fff; }
@@ -129,10 +129,10 @@
   margin-right: 3px;
   vertical-align: middle;
 }
-.dot.green { background: #22C55E; }
+.dot.green { background: #F59E0B; }
 .dot.red { background: #EF4444; }
 .dot.gray { background: #7A7A9A; }
-.l-green { color: #4ADE80; }
+.l-green { color: #FCD34D; }
 .l-red { color: #F87171; }
 .l-gray { color: #9098B0; }
 
@@ -143,4 +143,4 @@
   font-size: 16px;
   line-height: 1.8;
 }
-.empty-accent { color: #22C55E; }
+.empty-accent { color: #F59E0B; }
